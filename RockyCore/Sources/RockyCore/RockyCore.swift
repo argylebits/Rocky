@@ -1,8 +1,2 @@
-//  RockyCore.swift
-//  RockyCore
-//
-//  Created by Argyle Bits LLC
-
-public struct RockyCore {
-    public init() {}
-}
+// RockyCore — shared business logic for Rocky
+// This file intentionally left minimal. Public API is exposed through Database/, Models/, and Services/.

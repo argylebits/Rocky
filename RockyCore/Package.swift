@@ -10,9 +10,15 @@ let package = Package(
     products: [
         .library(name: "RockyCore", targets: ["RockyCore"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/vapor/sqlite-nio.git", from: "1.0.0"),
+    ],
     targets: [
         .target(
-            name: "RockyCore"
+            name: "RockyCore",
+            dependencies: [
+                .product(name: "SQLiteNIO", package: "sqlite-nio"),
+            ]
         ),
         .testTarget(
             name: "RockyCoreTests",
