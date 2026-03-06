@@ -56,53 +56,54 @@ struct Status: AsyncParsableCommand {
         }
 
         let now = Date()
+        let endOfToday = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now))!
 
         if today {
-            let (start, end) = dayRange(for: now, calendar: calendar)
+            let (start, _) = dayRange(for: now, calendar: calendar)
             if verbose {
-                let sessions = try await reportService.verboseSessions(from: start, to: end, projectId: projectId)
+                let sessions = try await reportService.verboseSessions(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderVerbose(sessions, period: Formatter.periodToday(), projectFilter: project))
             } else {
-                let totals = try await reportService.totals(from: start, to: end, projectId: projectId)
+                let totals = try await reportService.totals(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderTodayTotals(totals, period: Formatter.periodToday()))
             }
             return
         }
 
         if week {
-            let (start, end) = weekRange(for: now, calendar: calendar)
-            let period = Formatter.periodWeek(from: start, to: end)
+            let (start, _) = weekRange(for: now, calendar: calendar)
+            let period = Formatter.periodRange(from: start, to: endOfToday)
             if verbose {
-                let sessions = try await reportService.verboseSessions(from: start, to: end, projectId: projectId)
+                let sessions = try await reportService.verboseSessions(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderVerbose(sessions, period: period, projectFilter: project))
             } else {
-                let report = try await reportService.groupedByDay(from: start, to: end, projectId: projectId)
+                let report = try await reportService.groupedByDay(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderGrouped(report, period: period, projectFilter: project))
             }
             return
         }
 
         if month {
-            let (start, end) = monthRange(for: now, calendar: calendar)
+            let (start, _) = monthRange(for: now, calendar: calendar)
             let period = Formatter.periodMonth(date: now)
             if verbose {
-                let sessions = try await reportService.verboseSessions(from: start, to: end, projectId: projectId)
+                let sessions = try await reportService.verboseSessions(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderVerbose(sessions, period: period, projectFilter: project))
             } else {
-                let report = try await reportService.groupedByWeekOfMonth(from: start, to: end, projectId: projectId)
+                let report = try await reportService.groupedByWeekOfMonth(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderGrouped(report, period: period, projectFilter: project))
             }
             return
         }
 
         if year {
-            let (start, end) = yearRange(for: now, calendar: calendar)
+            let (start, _) = yearRange(for: now, calendar: calendar)
             let period = Formatter.periodYear(date: now)
             if verbose {
-                let sessions = try await reportService.verboseSessions(from: start, to: end, projectId: projectId)
+                let sessions = try await reportService.verboseSessions(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderVerbose(sessions, period: period, projectFilter: project))
             } else {
-                let report = try await reportService.groupedByMonth(from: start, to: end, projectId: projectId)
+                let report = try await reportService.groupedByMonth(from: start, to: endOfToday, projectId: projectId)
                 print(Table.renderGrouped(report, period: period, projectFilter: project, hoursOnly: true))
             }
             return
