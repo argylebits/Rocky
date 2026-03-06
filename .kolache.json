@@ -1,0 +1,11 @@
+{
+  "createdAt" : "2026-03-06T16:58:14Z",
+  "flags" : [
+    "package",
+    "app",
+    "cli",
+    "git"
+  ],
+  "projectName" : "Rocky",
+  "version" : "1.0"
+}
