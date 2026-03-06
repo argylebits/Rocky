@@ -1,0 +1,168 @@
+# Rocky — Commands Reference
+
+## rocky start <project>
+
+Starts a timer for the given project.
+
+```bash
+rocky start acme-corp
+rocky start side-project
+```
+
+**Behaviour:**
+- If the project doesn't exist, create it automatically (no separate `add` command needed)
+- If a timer is already running for this project, print an error: `Timer already running for acme-corp`
+- Multiple projects can have timers running simultaneously — this is intentional and supported
+- Always print what happened after starting:
+  ```
+  Started acme-corp
+  ```
+- If other timers are running, also show them:
+  ```
+  Started side-project
+  Currently running: acme-corp, side-project
+  ```
+
+---
+
+## rocky stop [project] [--all]
+
+Stops a running timer.
+
+```bash
+rocky stop                  # interactive if multiple running
+rocky stop acme-corp        # stop specific project
+rocky stop --all            # stop all running timers
+```
+
+**Behaviour — no args, one timer running:**
+```
+Stopped acme-corp (2h 30m)
+```
+
+**Behaviour — no args, multiple timers running:**
+```
+Multiple timers running:
+
+    Project           Duration
+────────────────────────────────
+  1. acme-corp        2h 30m
+  2. side-project     0h 45m
+────────────────────────────────
+
+Stop which? (1/2/all): 
+```
+User types `1`, `2`, or `all`. Then confirm what was stopped:
+```
+Stopped acme-corp (2h 30m)
+```
+
+**Behaviour — `rocky stop acme-corp`:**
+```
+Stopped acme-corp (2h 30m)
+```
+
+**Behaviour — `rocky stop --all`:**
+```
+Stopped acme-corp     (2h 30m)
+Stopped side-project  (0h 45m)
+```
+
+**Behaviour — no timers running:**
+```
+No timers currently running.
+```
+
+---
+
+## rocky status [flags]
+
+Shows time tracking summary. See `OUTPUT.md` for exact table formatting.
+
+### Flags
+
+| Flag | Description |
+|------|-------------|
+| *(none)* | Show all projects with currently running durations |
+| `--today` | Show totals for today |
+| `--week` | Show totals by day for the current week (Mon–Sun) |
+| `--month` | Show totals by week for the current month |
+| `--year` | Show totals by month for the current year |
+| `--from <date>` | Custom range start (YYYY-MM-DD) |
+| `--to <date>` | Custom range end (YYYY-MM-DD), defaults to today |
+| `--verbose` / `-v` | Show individual sessions with start/stop times |
+| `--project <name>` | Filter to a single project |
+
+### Flag combinations
+
+```bash
+rocky status                            # current timer state only
+rocky status --today                    # today's totals
+rocky status --week                     # this week by day
+rocky status --month                    # this month by week
+rocky status --year                     # this year by month
+rocky status --from 2026-01-01          # custom range
+rocky status --from 2026-01-01 --to 2026-02-01
+rocky status --week --verbose           # this week, individual sessions
+rocky status --week --project acme-corp # this week filtered to one project
+rocky status --week --verbose --project acme-corp  # drill down on one project
+```
+
+### --from/--to auto column grouping
+
+When using `--from/--to`, automatically pick the best column grouping:
+- Range ≤ 7 days → columns by day
+- Range ≤ 60 days → columns by week
+- Range > 60 days → columns by month
+
+---
+
+## rocky config
+
+Manage user preferences.
+
+```bash
+rocky config set auto-stop true
+rocky config set auto-stop false
+rocky config get auto-stop
+rocky config list
+```
+
+### Available settings
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `auto-stop` | bool | `true` | Automatically stop current timer when starting a new one on the same project |
+
+Config stored at `~/.rocky/config.json`.
+
+---
+
+## rocky projects
+
+List all projects.
+
+```bash
+rocky projects
+```
+
+Output:
+```
+  Project           Created
+──────────────────────────────────
+  acme-corp         Jan 2026
+  side-project      Feb 2026
+  studio-client     Feb 2026
+  old-agency        Mar 2025
+```
+
+---
+
+## General CLI behaviour
+
+- Project names are case-insensitive for matching (`ACME-CORP` matches `acme-corp`)
+- Project names are stored exactly as first provided
+- Unknown project names in `start` auto-create the project
+- Unknown project names in `stop`/`status --project` print an error
+- All times displayed in local timezone
+- Durations displayed as `Xh Ym` (e.g. `2h 30m`, `0h 45m`, `1h 00m`)
