@@ -13,7 +13,7 @@ public struct ReportService: Sendable {
     public func allProjectsWithStatus() async throws -> [ProjectStatus] {
         let rows = try await db.query("""
             SELECT p.*,
-                   s.id AS s_id, s.start_time AS s_start_time, s.end_time AS s_end_time,
+                   s.id AS s_id, s.project_id AS s_project_id, s.start_time AS s_start_time, s.end_time AS s_end_time,
                    (SELECT MAX(s2.end_time) FROM sessions s2 WHERE s2.project_id = p.id) AS last_active
             FROM projects p
             LEFT JOIN sessions s ON s.project_id = p.id AND s.end_time IS NULL
@@ -27,19 +27,13 @@ public struct ReportService: Sendable {
         var seen = Set<Int>()
         var results: [ProjectStatus] = []
         for row in rows {
-            let project = try Project(row: row)
+            let project = try row.decode(Project.self)
             if seen.contains(project.id) { continue }
             seen.insert(project.id)
 
             var runningSession: Session? = nil
-            if let sId = row.column("s_id")?.integer,
-               let sStartStr = row.column("s_start_time")?.string {
-                runningSession = Session(
-                    id: sId,
-                    projectId: project.id,
-                    startTime: try DateFormatter.sqlite.parseOrThrow(sStartStr),
-                    endTime: nil
-                )
+            if row.column("s_id")?.integer != nil {
+                runningSession = try row.decode(Session.self, prefix: "s_")
             }
             results.append(ProjectStatus(project: project, runningSession: runningSession))
         }

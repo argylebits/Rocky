@@ -6,12 +6,14 @@ import Logging
 public final class Database: Sendable {
     private let connection: SQLiteConnection
     private let threadPool: NIOThreadPool
+    private let eventLoopGroup: MultiThreadedEventLoopGroup
 
     public var db: SQLiteConnection { connection }
 
-    private init(connection: SQLiteConnection, threadPool: NIOThreadPool) {
+    private init(connection: SQLiteConnection, threadPool: NIOThreadPool, eventLoopGroup: MultiThreadedEventLoopGroup) {
         self.connection = connection
         self.threadPool = threadPool
+        self.eventLoopGroup = eventLoopGroup
     }
 
     public static func open() async throws -> Database {
@@ -34,14 +36,16 @@ public final class Database: Sendable {
         let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         let logger = Logger(label: "rocky")
 
+        let storage: SQLiteConnection.Storage = (path == ":memory:") ? .memory : .file(path: path)
+
         let connection = try await SQLiteConnection.open(
-            storage: .file(path: path),
+            storage: storage,
             threadPool: threadPool,
             logger: logger,
             on: eventLoopGroup.any()
         )
 
-        let database = Database(connection: connection, threadPool: threadPool)
+        let database = Database(connection: connection, threadPool: threadPool, eventLoopGroup: eventLoopGroup)
         try await Migrations.run(on: database)
         return database
     }
@@ -65,5 +69,6 @@ public final class Database: Sendable {
     public func close() async throws {
         try await connection.close()
         try await threadPool.shutdownGracefully()
+        try await eventLoopGroup.shutdownGracefully()
     }
 }

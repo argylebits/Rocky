@@ -31,17 +31,16 @@ public struct SessionService: Sendable {
         guard let row = rows.first else {
             throw RockyCoreError.noRunningTimers
         }
-        let session = try Session(row: row)
+        let session = try row.decode(Session.self)
         try await db.execute(
-            "UPDATE sessions SET end_time = datetime('now') WHERE id = ?",
+            "UPDATE sessions SET end_time = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id = ?",
             [.integer(session.id)]
         )
-        // Re-fetch to get the end_time
         let updated = try await db.query(
             "SELECT * FROM sessions WHERE id = ?",
             [.integer(session.id)]
         )
-        return try Session(row: updated[0])
+        return try updated[0].decode(Session.self)
     }
 
     public func stopAll() async throws -> [Session] {
@@ -49,14 +48,14 @@ public struct SessionService: Sendable {
         var stopped: [Session] = []
         for session in running {
             try await db.execute(
-                "UPDATE sessions SET end_time = datetime('now') WHERE id = ?",
+                "UPDATE sessions SET end_time = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id = ?",
                 [.integer(session.id)]
             )
             let updated = try await db.query(
                 "SELECT * FROM sessions WHERE id = ?",
                 [.integer(session.id)]
             )
-            stopped.append(try Session(row: updated[0]))
+            stopped.append(try updated[0].decode(Session.self))
         }
         return stopped
     }
@@ -65,7 +64,7 @@ public struct SessionService: Sendable {
         let rows = try await db.query(
             "SELECT * FROM sessions WHERE end_time IS NULL ORDER BY start_time ASC"
         )
-        return try rows.map { try Session(row: $0) }
+        return try rows.map { try $0.decode(Session.self) }
     }
 
     public func getRunningWithProjects() async throws -> [(Session, Project)] {
@@ -77,33 +76,28 @@ public struct SessionService: Sendable {
             ORDER BY s.start_time ASC
             """)
         return try rows.map { row in
-            let session = try Session(row: row)
-            guard let pId = row.column("p_id")?.integer,
-                  let pName = row.column("p_name")?.string,
-                  let pCreatedAtStr = row.column("p_created_at")?.string else {
-                throw RockyCoreError.invalidRow("session+project join")
-            }
-            let project = Project(
-                id: pId,
-                parentId: row.column("p_parent_id")?.integer,
-                name: pName,
-                createdAt: try DateFormatter.sqlite.parseOrThrow(pCreatedAtStr)
-            )
+            let session = try row.decode(Session.self)
+            let project = try row.decode(Project.self, prefix: "p_")
             return (session, project)
         }
     }
 
-    public func getSessions(from: Date, to: Date, projectId: Int? = nil) async throws -> [(Session, Project)] {
-        let fromStr = DateFormatter.sqlite.string(from: from)
-        let toStr = DateFormatter.sqlite.string(from: to)
+    public func insert(projectId: Int, startTime: Date, endTime: Date?) async throws {
+        let session = Session(id: 0, projectId: projectId, startTime: startTime, endTime: endTime)
+        try await db.execute(
+            "INSERT INTO sessions (project_id, start_time, end_time) VALUES (?, ?, ?)",
+            session.toSQLiteBinds()
+        )
+    }
 
+    public func getSessions(from: Date, to: Date, projectId: Int? = nil) async throws -> [(Session, Project)] {
         var sql = """
             SELECT s.*, p.id AS p_id, p.parent_id AS p_parent_id, p.name AS p_name, p.created_at AS p_created_at
             FROM sessions s
             JOIN projects p ON s.project_id = p.id
             WHERE (s.start_time < ? AND (s.end_time > ? OR s.end_time IS NULL))
             """
-        var binds: [SQLiteData] = [.text(toStr), .text(fromStr)]
+        var binds: [SQLiteData] = [to.sqliteBind, from.sqliteBind]
 
         if let projectId {
             sql += " AND s.project_id = ?"
@@ -113,18 +107,8 @@ public struct SessionService: Sendable {
 
         let rows = try await db.query(sql, binds)
         return try rows.map { row in
-            let session = try Session(row: row)
-            guard let pId = row.column("p_id")?.integer,
-                  let pName = row.column("p_name")?.string,
-                  let pCreatedAtStr = row.column("p_created_at")?.string else {
-                throw RockyCoreError.invalidRow("session+project join")
-            }
-            let project = Project(
-                id: pId,
-                parentId: row.column("p_parent_id")?.integer,
-                name: pName,
-                createdAt: try DateFormatter.sqlite.parseOrThrow(pCreatedAtStr)
-            )
+            let session = try row.decode(Session.self)
+            let project = try row.decode(Project.self, prefix: "p_")
             return (session, project)
         }
     }

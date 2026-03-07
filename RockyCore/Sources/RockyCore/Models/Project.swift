@@ -1,29 +1,24 @@
 import Foundation
 import SQLiteNIO
 
-public struct Project: Sendable {
+public struct Project: Codable, Sendable {
     public let id: Int
     public let parentId: Int?
     public let name: String
     public let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case parentId = "parent_id"
+        case name
+        case createdAt = "created_at"
+    }
 
     public init(id: Int, parentId: Int?, name: String, createdAt: Date) {
         self.id = id
         self.parentId = parentId
         self.name = name
         self.createdAt = createdAt
-    }
-
-    public init(row: SQLiteRow) throws {
-        guard let id = row.column("id")?.integer,
-              let name = row.column("name")?.string,
-              let createdAtStr = row.column("created_at")?.string else {
-            throw RockyCoreError.invalidRow("project")
-        }
-        self.id = id
-        self.parentId = row.column("parent_id")?.integer
-        self.name = name
-        self.createdAt = try DateFormatter.sqlite.parseOrThrow(createdAtStr)
     }
 }
 
@@ -44,22 +39,5 @@ public enum RockyCoreError: Error, CustomStringConvertible {
         case .noRunningTimers:
             return "No timers currently running."
         }
-    }
-}
-
-extension DateFormatter {
-    static let sqlite: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        f.timeZone = TimeZone(identifier: "UTC")
-        f.locale = Locale(identifier: "en_US_POSIX")
-        return f
-    }()
-
-    func parseOrThrow(_ string: String) throws -> Date {
-        guard let date = date(from: string) else {
-            throw RockyCoreError.invalidRow("date parse failed: \(string)")
-        }
-        return date
     }
 }
