@@ -126,6 +126,23 @@ Period:  Mon 02 Mar — Fri 06 Mar 2026
                                                19h 45m
 ```
 
+### `rocky dashboard`
+
+Show an analytics dashboard with trends and insights.
+
+```bash
+rocky dashboard
+```
+
+Displays a full-screen dashboard including:
+- Running timers
+- Time summaries (this week, last week, this month, last month, this year)
+- Activity heatmap (12 weeks, Mon-Sun grid)
+- Weekly sparkline trend
+- Project distribution for the current week
+- Peak working hours
+- Streaks and stats (current/longest streak, average/longest session, most active day)
+
 ### `rocky projects`
 
 List all projects.

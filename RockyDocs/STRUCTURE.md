@@ -30,7 +30,8 @@ RockyCore/
         └── Services/
             ├── ProjectService.swift    ← CRUD for projects
             ├── SessionService.swift    ← start/stop/query sessions
-            └── ReportService.swift     ← time calculations, grouping for status views
+            ├── ReportService.swift     ← time calculations, grouping for status views
+            └── DashboardService.swift  ← analytics: heatmap, sparkline, streaks, peak hours
 ```
 
 ### RockyCore/Package.swift dependencies
@@ -56,10 +57,12 @@ RockyCLI/
         │   ├── Stop.swift              ← rocky stop [project] [--all]
         │   ├── Status.swift            ← rocky status [flags]
         │   ├── Config.swift            ← rocky config get/set/list
-        │   └── Projects.swift          ← rocky projects
+        │   ├── Projects.swift          ← rocky projects
+        │   └── Dashboard.swift         ← rocky dashboard
         └── Output/
             ├── Table.swift             ← table rendering, column padding, dividers
-            └── Formatter.swift         ← duration formatting, date formatting
+            ├── Formatter.swift         ← duration formatting, date formatting
+            └── DashboardRenderer.swift ← renders dashboard analytics to terminal
 ```
 
 ### RockyCLI/Package.swift dependencies
