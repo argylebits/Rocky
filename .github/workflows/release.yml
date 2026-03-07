@@ -28,9 +28,10 @@ jobs:
       - name: Package binary
         run: |
           BIN_PATH=$(swift build -c release --package-path RockyCLI --arch ${{ matrix.arch }} --show-bin-path)
-          cp "$BIN_PATH/RockyCLI" rocky
-          chmod +x rocky
-          tar czf rocky-macos-${{ matrix.arch }}.tar.gz rocky
+          mkdir -p staging
+          cp "$BIN_PATH/RockyCLI" staging/rocky
+          chmod +x staging/rocky
+          tar czf rocky-macos-${{ matrix.arch }}.tar.gz -C staging rocky
 
       - uses: actions/upload-artifact@v4
         with:
@@ -61,9 +62,10 @@ jobs:
       - name: Package binary
         run: |
           BIN_PATH=$(swift build -c release --package-path RockyCLI --show-bin-path)
-          cp "$BIN_PATH/RockyCLI" rocky
-          chmod +x rocky
-          tar czf rocky-linux-${{ matrix.arch }}.tar.gz rocky
+          mkdir -p staging
+          cp "$BIN_PATH/RockyCLI" staging/rocky
+          chmod +x staging/rocky
+          tar czf rocky-linux-${{ matrix.arch }}.tar.gz -C staging rocky
 
       - uses: actions/upload-artifact@v4
         with:
