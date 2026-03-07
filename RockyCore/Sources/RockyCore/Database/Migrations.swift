@@ -5,7 +5,7 @@ enum Migrations {
         try await db.execute("""
             CREATE TABLE IF NOT EXISTS migrations (
                 version     INTEGER PRIMARY KEY,
-                applied_at  DATETIME NOT NULL DEFAULT (datetime('now'))
+                applied_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
             )
             """)
 
@@ -22,19 +22,19 @@ enum Migrations {
     private static func v1(on db: Database) async throws {
         try await db.execute("""
             CREATE TABLE IF NOT EXISTS projects (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                parent_id   INTEGER  REFERENCES projects(id),
-                name        TEXT     NOT NULL UNIQUE,
-                created_at  DATETIME NOT NULL DEFAULT (datetime('now'))
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                parent_id   INTEGER REFERENCES projects(id),
+                name        TEXT    NOT NULL UNIQUE,
+                created_at  TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
             )
             """)
 
         try await db.execute("""
             CREATE TABLE IF NOT EXISTS sessions (
-                id          INTEGER  PRIMARY KEY AUTOINCREMENT,
-                project_id  INTEGER  NOT NULL REFERENCES projects(id),
-                start_time  DATETIME NOT NULL DEFAULT (datetime('now')),
-                end_time    DATETIME
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id  INTEGER NOT NULL REFERENCES projects(id),
+                start_time  TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+                end_time    TEXT
             )
             """)
 
