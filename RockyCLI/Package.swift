@@ -16,11 +16,22 @@ let package = Package(
             dependencies: [
                 "RockyCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ],
+            plugins: [
+                .plugin(name: "VersionPlugin"),
             ]
         ),
         .testTarget(
             name: "RockyCLITests",
             dependencies: ["RockyCLI"]
+        ),
+        .executableTarget(
+            name: "VersionGen"
+        ),
+        .plugin(
+            name: "VersionPlugin",
+            capability: .buildTool(),
+            dependencies: ["VersionGen"]
         ),
     ]
 )
