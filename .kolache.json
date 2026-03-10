@@ -6,6 +6,6 @@
     "cli",
     "git"
   ],
-  "projectName" : "Rocky",
+  "projectName" : "RockyCLI",
   "version" : "1.0"
 }
