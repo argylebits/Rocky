@@ -117,6 +117,30 @@ When using `--from/--to`, automatically pick the best column grouping:
 
 ---
 
+## rocky dashboard
+
+Show an analytics dashboard with trends and insights.
+
+```bash
+rocky dashboard
+```
+
+**Behaviour:**
+- No flags — displays a full-width dashboard with multiple analytics widgets
+- Widgets include:
+  - Running timers (if any)
+  - Time summaries: this week, last week, this month, last month, this year (with week/month deltas)
+  - Activity heatmap: 12-week grid (Mon-Sun rows, week columns) with intensity levels `· ░ ▒ ▓ █`
+  - Weekly sparkline: 12-week trend using `▁▂▃▄▅▆▇█` characters
+  - Project distribution: bar chart for current week with percentage breakdown
+  - Peak hours: intensity chart showing busiest hours of the day
+  - Streaks & stats: current/longest streak, average/longest session, most active weekday
+- Dashboard uses double-line border `╔═╗║╚═╝` for outer frame and rounded single-line `╭─╮│╰─╯` for widget borders
+- All data computed from session history — no additional database tables required
+- Week starts on Monday (per DECISIONS.md)
+
+---
+
 ## rocky config
 
 Manage user preferences.
