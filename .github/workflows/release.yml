@@ -105,26 +105,26 @@ jobs:
           FORMULA=$(cat <<RUBY
           class Rocky < Formula
             desc "CLI time tracking tool"
-            homepage "https://github.com/argylebits/Rocky"
+            homepage "https://github.com/argylebits/RockyCLI"
             version "${VERSION}"
             license "MIT"
 
             on_macos do
               if Hardware::CPU.arm?
-                url "https://github.com/argylebits/Rocky/releases/download/v#{version}/rocky-macos-arm64.tar.gz"
+                url "https://github.com/argylebits/RockyCLI/releases/download/v#{version}/rocky-macos-arm64.tar.gz"
                 sha256 "${SHA_MACOS_ARM64}"
               elsif Hardware::CPU.intel?
-                url "https://github.com/argylebits/Rocky/releases/download/v#{version}/rocky-macos-x86_64.tar.gz"
+                url "https://github.com/argylebits/RockyCLI/releases/download/v#{version}/rocky-macos-x86_64.tar.gz"
                 sha256 "${SHA_MACOS_X86}"
               end
             end
 
             on_linux do
               if Hardware::CPU.arm?
-                url "https://github.com/argylebits/Rocky/releases/download/v#{version}/rocky-linux-arm64.tar.gz"
+                url "https://github.com/argylebits/RockyCLI/releases/download/v#{version}/rocky-linux-arm64.tar.gz"
                 sha256 "${SHA_LINUX_ARM64}"
               elsif Hardware::CPU.intel?
-                url "https://github.com/argylebits/Rocky/releases/download/v#{version}/rocky-linux-x86_64.tar.gz"
+                url "https://github.com/argylebits/RockyCLI/releases/download/v#{version}/rocky-linux-x86_64.tar.gz"
                 sha256 "${SHA_LINUX_X86}"
               end
             end

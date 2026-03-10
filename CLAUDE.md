@@ -8,7 +8,7 @@ Rocky is a CLI time tracking tool built in Swift. Read the `RockyDocs/` director
 
 - **Do not deviate from the design docs** in `RockyDocs/` without explicitly flagging it and getting confirmation
 - **Do not redesign decided features** — all decisions in `RockyDocs/DECISIONS.md` are final
-- **Do not add dependencies** beyond what is listed in `RockyDocs/OVERVIEW.md` without asking first
+- **Do not add dependencies** without asking first
 - **Do not rename commands, flags, or output fields** — these are locked in `RockyDocs/COMMANDS.md` and `RockyDocs/OUTPUT.md`
 - **Do not change the database schema** without flagging it — schema is locked in `RockyDocs/SCHEMA.md`
 

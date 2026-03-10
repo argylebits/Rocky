@@ -16,8 +16,8 @@ brew install rocky
 Requires Swift 6.2+.
 
 ```bash
-git clone https://github.com/argylebits/Rocky.git
-cd Rocky
+git clone https://github.com/argylebits/RockyCLI.git
+cd RockyCLI
 swift build -c release
 cp .build/release/App /usr/local/bin/rocky
 ```
